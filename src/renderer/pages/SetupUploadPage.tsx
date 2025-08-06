@@ -200,6 +200,13 @@ function SetupUploadPage() {
   return (
     <div className="main-container">
       <h1>GoatSetups</h1>
+      <div style={{ marginBottom: '1em', textAlign: 'center' }}>
+        <p>
+          Easily organize and save your ACC car setups.
+          <br />
+          Upload, rename, and sort setups by car and track.
+        </p>
+      </div>
       <div
         className="upload-box"
         role="button"

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   MemoryRouter as Router,
   Routes,
@@ -8,6 +8,8 @@ import {
 } from 'react-router-dom';
 import './App.css';
 import SetupUploadPage from './pages/SetupUploadPage';
+import WelcomePage from './pages/WelcomePage';
+
 // Page to browse available ACC setups
 function BrowseSetupsPage() {
   return (
@@ -67,6 +69,23 @@ function SideNav() {
 }
 
 export default function App() {
+  const [showWelcome, setShowWelcome] = useState<boolean>(true);
+
+  useEffect(() => {
+    // Check localStorage for first visit
+    const hasVisited = localStorage.getItem('goatsetups_has_visited');
+    if (hasVisited) setShowWelcome(false);
+  }, []);
+
+  const handleNext = () => {
+    localStorage.setItem('goatsetups_has_visited', 'true');
+    setShowWelcome(false);
+  };
+
+  if (showWelcome) {
+    return <WelcomePage onNext={handleNext} />;
+  }
+
   return (
     <Router>
       <SideNav />

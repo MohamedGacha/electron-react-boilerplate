@@ -144,19 +144,12 @@ const createWindow = async () => {
     await installExtensions();
   }
 
-  const RESOURCES_PATH = app.isPackaged
-    ? path.join(process.resourcesPath, 'assets')
-    : path.join(__dirname, '../../assets');
-
-  const getAssetPath = (...paths: string[]): string => {
-    return path.join(RESOURCES_PATH, ...paths);
-  };
+  // Removed unused getAssetPath function
 
   mainWindow = new BrowserWindow({
-    show: false,
     width: 1024,
     height: 728,
-    icon: getAssetPath('icon.png'),
+    icon: path.join(__dirname, '..', 'assets', '../../assets/icon.png'),
     webPreferences: {
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
@@ -211,6 +204,7 @@ app.on('window-all-closed', () => {
 app
   .whenReady()
   .then(() => {
+    app.setName('GoatSetups'); // Set the Electron app name
     createWindow();
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
