@@ -1,50 +1,82 @@
-import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
-import icon from '../../assets/icon.svg';
+import React from 'react';
+import {
+  MemoryRouter as Router,
+  Routes,
+  Route,
+  Link,
+  useLocation,
+} from 'react-router-dom';
 import './App.css';
-
-function Hello() {
+import SetupUploadPage from './pages/SetupUploadPage';
+// Page to browse available ACC setups
+function BrowseSetupsPage() {
   return (
-    <div>
-      <div className="Hello">
-        <img width="200" alt="icon" src={icon} />
-      </div>
-      <h1>electron-react-boilerplate</h1>
-      <div className="Hello">
-        <a
-          href="https://electron-react-boilerplate.js.org/"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <button type="button">
-            <span role="img" aria-label="books">
-              📚
-            </span>
-            Read our docs
-          </button>
-        </a>
-        <a
-          href="https://github.com/sponsors/electron-react-boilerplate"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <button type="button">
-            <span role="img" aria-label="folded hands">
-              🙏
-            </span>
-            Donate
-          </button>
-        </a>
-      </div>
+    <div style={{ padding: '2rem', textAlign: 'center' }}>
+      <h2>Browse ACC Setups</h2>
+      <p>Coming soon...</p>
     </div>
+  );
+}
+
+// Placeholder component for the search page
+function SearchSetupPage() {
+  return (
+    <div style={{ padding: '2rem', textAlign: 'center' }}>
+      <h2>Search for a Setup</h2>
+      <p>Coming soon...</p>
+    </div>
+  );
+}
+
+// Side navigation component
+function SideNav() {
+  const location = useLocation();
+  return (
+    <nav className="side-nav">
+      <Link
+        to="/"
+        className={`side-nav-link${location.pathname === '/' ? ' active' : ''}`}
+        title="Upload Setup"
+      >
+        <span role="img" aria-label="upload">
+          ⬆️
+        </span>
+      </Link>
+      <Link
+        to="/search"
+        className={`side-nav-link${
+          location.pathname === '/search' ? ' active' : ''
+        }`}
+        title="Search Setup"
+      >
+        <span role="img" aria-label="search">
+          🔍
+        </span>
+      </Link>
+      <Link
+        to="/browse"
+        className={`side-nav-link${location.pathname === '/browse' ? ' active' : ''}`}
+        title="Browse Setups"
+      >
+        <span role="img" aria-label="browse">
+          📂
+        </span>
+      </Link>
+    </nav>
   );
 }
 
 export default function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<Hello />} />
-      </Routes>
+      <SideNav />
+      <div style={{ marginLeft: '72px', minHeight: '100vh' }}>
+        <Routes>
+          <Route path="/" element={<SetupUploadPage />} />
+          <Route path="/search" element={<SearchSetupPage />} />
+          <Route path="/browse" element={<BrowseSetupsPage />} />
+        </Routes>
+      </div>
     </Router>
   );
 }

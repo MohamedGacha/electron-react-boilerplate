@@ -1,0 +1,131 @@
+body {
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+}
+
+.main-container {
+  background: rgba(35, 37, 38, 0.92);
+  border-radius: 18px;
+  box-shadow: 0 4px 32px rgba(24, 39, 75, 0.18);
+  padding: 36px 32px 28px 32px;
+  max-width: 400px;
+  width: 100%;
+  margin: 40px auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+h1 {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 28px;
+  color: #fedc2a;
+  letter-spacing: 0.03em;
+}
+
+.upload-box {
+  width: 100%;
+  box-sizing: border-box;
+  border: 2px dashed #888;
+  border-radius: 12px;
+  padding: 36px 0;
+  text-align: center;
+  cursor: pointer;
+  margin-bottom: 28px;
+  background: rgba(65, 67, 69, 0.18);
+  color: #e0e0e0;
+  font-size: 1.08rem;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.upload-box:focus,
+.upload-box:hover {
+  border-color: #fedc2a;
+  background: rgba(65, 67, 69, 0.28);
+  outline: none;
+}
+
+.upload-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.cancel-upload-btn {
+  margin-left: 8px;
+  background: transparent;
+  border: none;
+  color: #fedc2a;
+  font-weight: 700;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+form {
+  width: 100%;
+}
+
+label {
+  width: 100%;
+  display: block;
+  margin-bottom: 10px;
+  color: #e0e0e0;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.track-input,
+input[type="text"] {
+  width: 100%;
+  padding: 10px 12px;
+  margin-top: 6px;
+  margin-bottom: 18px;
+  border-radius: 8px;
+  border: 1.5px solid #414345;
+  background: #232526;
+  color: #e0e0e0;
+  font-size: 1.08rem;
+  transition: border-color 0.18s;
+  box-sizing: border-box;
+}
+
+.track-input {
+  position: relative;
+  background-color: transparent;
+}
+
+.track-input::placeholder {
+  color: #666;
+  opacity: 0.7;
+}
+
+.submit-btn {
+  width: 100%;
+  background-color: #fedc2a;
+  color: #232526;
+  padding: 14px 0;
+  border-radius: 10px;
+  border: none;
+  font-size: 1.1rem;
+  font-weight: 700;
+  box-shadow: 0px 8px 28px -6px rgba(24, 39, 75, 0.12),
+    0px 18px 88px -4px rgba(24, 39, 75, 0.14);
+  transition: background 0.15s, color 0.15s, transform 0.12s;
+  cursor: pointer;
+  opacity: 0.98;
+  margin: 10px 0 0 0;
+  letter-spacing: 0.03em;
+}
+
+.submit-btn:hover {
+  background-color: #ffe066;
+  color: #232526;
+  transform: translateY(-2px) scale(1.03);
+  opacity: 1;
+}

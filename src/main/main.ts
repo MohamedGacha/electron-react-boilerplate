@@ -9,6 +9,8 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
+import fs from 'fs';
+import os from 'os';
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
@@ -30,6 +32,87 @@ ipcMain.on('ipc-example', async (event, arg) => {
   console.log(msgTemplate(arg));
   event.reply('ipc-example', msgTemplate('pong'));
 });
+
+ipcMain.handle('getSetupFiles', async () => {
+  // Recursively find all .json files in the setups folder
+  interface JsonFileResult {
+    path: string;
+  }
+
+  function findJsonFiles(dir: string, accSetupsPath: string): JsonFileResult[] {
+    let results: JsonFileResult[] = [];
+    const list: string[] = fs.readdirSync(dir);
+    list.forEach((file: string) => {
+      const filePath: string = path.join(dir, file);
+      const stat: fs.Stats = fs.statSync(filePath);
+      if (stat && stat.isDirectory()) {
+        results = results.concat(findJsonFiles(filePath, accSetupsPath));
+      } else if (file.toLowerCase().endsWith('.json')) {
+        results.push({ path: path.relative(accSetupsPath, filePath) });
+      }
+    });
+    return results;
+  }
+
+  try {
+    const documentsPath = path.join(os.homedir(), 'Documents');
+    const accSetupsPath = path.join(
+      documentsPath,
+      'Assetto Corsa Competizione',
+      'Setups',
+    );
+    if (!fs.existsSync(accSetupsPath)) return [];
+    return findJsonFiles(accSetupsPath, accSetupsPath);
+  } catch {
+    return [];
+  }
+});
+
+ipcMain.on(
+  'save-setup-file',
+  (event, { carName, trackName, fileName, fileContent }) => {
+    // Dynamically get ACC setups folder for any user
+    const accSetupsFolder = path.join(
+      os.homedir(),
+      'OneDrive',
+      'Documents',
+      'Assetto Corsa Competizione',
+      'Setups',
+    );
+
+    // If not found, fallback to Documents (for users without OneDrive)
+    let setupsFolder = accSetupsFolder;
+    if (!fs.existsSync(setupsFolder)) {
+      setupsFolder = path.join(
+        os.homedir(),
+        'Documents',
+        'Assetto Corsa Competizione',
+        'Setups',
+      );
+    }
+
+    // Car folder
+    const carFolder = path.join(setupsFolder, carName);
+    if (!fs.existsSync(carFolder)) fs.mkdirSync(carFolder, { recursive: true });
+
+    // Track folder
+    const trackFolder = path.join(carFolder, trackName);
+    if (!fs.existsSync(trackFolder))
+      fs.mkdirSync(trackFolder, { recursive: true });
+
+    // Final file path
+    const filePath = path.join(trackFolder, fileName);
+
+    // Save file
+    fs.writeFile(filePath, fileContent, (err) => {
+      if (err) {
+        event.reply('setup-file-saved', `Error: ${err.message}`);
+      } else {
+        event.reply('setup-file-saved', filePath);
+      }
+    });
+  },
+);
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -79,6 +162,7 @@ const createWindow = async () => {
         ? path.join(__dirname, 'preload.js')
         : path.join(__dirname, '../../.erb/dll/preload.js'),
     },
+    autoHideMenuBar: true, // <-- Add this line to hide the menubar
   });
 
   mainWindow.loadURL(resolveHtmlPath('index.html'));
