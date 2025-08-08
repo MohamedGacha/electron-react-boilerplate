@@ -1,0 +1,312 @@
+.browse-page {
+  padding: 2rem;
+  height: calc(100vh - 0px);
+  overflow: auto;
+  /* enable inner scrolling since body is overflow: hidden */
+  box-sizing: border-box;
+}
+
+.section-title {
+  margin: 0 0 1rem;
+}
+
+.filters {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.filter-card {
+  flex: 1 1 260px;
+  min-width: 260px;
+  background: rgba(35, 37, 38, 0.92);
+  border: 1.5px solid #414345;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  box-shadow: 0 2px 12px rgba(24, 39, 75, 0.08);
+}
+
+.filter-label {
+  display: block;
+  font-size: 0.8rem;
+  opacity: 0.9;
+  margin-bottom: 6px;
+  color: #e0e0e0;
+}
+
+.form-select {
+  width: 100%;
+  padding: 10px 12px;
+  margin-top: 2px;
+  border-radius: 8px;
+  border: 1.5px solid #414345;
+  background: #232526;
+  color: #e0e0e0;
+  font-size: 1rem;
+  transition: border-color 0.18s;
+  box-sizing: border-box;
+}
+
+.form-select:focus {
+  outline: none;
+  border-color: #fedc2a;
+}
+
+.results-card {
+  background: rgba(35, 37, 38, 0.92);
+  border: 1.5px solid #414345;
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 0 2px 12px rgba(24, 39, 75, 0.08);
+}
+
+.results-header {
+  margin-bottom: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.muted-text {
+  opacity: 0.8;
+}
+
+.error-text {
+  color: #ff8080;
+  font-weight: 600;
+}
+
+/* Scroll area only for setups list */
+.setup-scroll {
+  max-height: 56vh;
+  overflow-y: auto;
+  padding-right: 4px;
+  /* room for scrollbar */
+}
+
+.setup-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.setup-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  width: 100%;
+  margin: 0 0 0.5rem 0;
+  padding: 0.5rem 0.75rem;
+  background: rgba(35, 37, 38, 0.85);
+  border: 1.5px solid #414345;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(24, 39, 75, 0.06);
+}
+
+.setup-item:hover {
+  border-color: #ffe066;
+  background: rgba(65, 67, 69, 0.25);
+}
+
+.setup-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Inline icon buttons (override global button width) */
+.setup-item-actions {
+  display: flex;
+  gap: .25rem;
+  flex-shrink: 0;
+}
+
+.icon-button {
+  width: auto !important;
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid #414345;
+  background: #232526;
+  color: #e0e0e0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-button:hover {
+  border-color: #ffe066;
+  background: rgba(65, 67, 69, 0.25);
+}
+
+.icon-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.icon-button svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.icon-button.delete {
+  border-color: #7a2f2f;
+  background: #3a1f1f;
+  color: #ffb3b3;
+}
+
+.icon-button.delete:hover {
+  border-color: #ff5c5c;
+  background: #4a2626;
+}
+
+.layout-row {
+  display: flex;
+  gap: 1rem;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+.pane {
+  flex: 1 1 480px;
+  min-width: 320px;
+}
+
+/* Reuse card look for editor */
+.editor-card {
+  background: rgba(35, 37, 38, 0.92);
+  border: 1.5px solid #414345;
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 0 2px 12px rgba(24, 39, 75, 0.08);
+}
+
+/* Side-by-side layout inside results-card (override previous flex) */
+.results-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  /* left list, right editor */
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.list-pane {
+  grid-column: 1;
+}
+
+.editor-pane.in-card {
+  grid-column: 2;
+}
+
+/* When editor is hidden, list spans full width */
+.list-pane.full {
+  grid-column: 1 / -1;
+}
+
+/* Equal heights */
+.setup-scroll {
+  height: 56vh;
+  overflow: auto;
+}
+
+.editor-container {
+  height: 56vh;
+  border: 1.5px solid #414345;
+  border-radius: 8px;
+  overflow: auto;
+  background: #232526;
+}
+
+/* Stack on narrow viewports */
+@media (max-width: 1100px) {
+  .results-content {
+    grid-template-columns: 1fr;
+  }
+
+  .list-pane,
+  .editor-pane.in-card {
+    grid-column: 1;
+  }
+}
+
+.editor-textarea {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 12px;
+  border: none;
+  outline: none;
+  resize: none;
+  background: transparent;
+  color: #e0e0e0;
+  font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  caret-color: #ffe066;
+  tab-size: 2;
+  white-space: pre-wrap;
+  /* soft wrap similar to wordWrap: 'on' */
+}
+
+.editor-textarea[readonly] {
+  opacity: 0.95;
+  cursor: default;
+}
+
+.v-divider {
+  width: 2px;
+  background: #2f3133;
+  border-radius: 1px;
+  margin: 0 .25rem;
+}
+
+.setup-item.selected {
+  border-color: #fedc2a;
+  box-shadow: 0 0 0 2px rgba(254, 220, 42, 0.25) inset;
+  background: rgba(65, 67, 69, 0.25);
+}
+
+/* Optional color accents for actions */
+.icon-button.primary {
+  border-color: #8d7c1a;
+  background: #3a3513;
+  color: #ffe066;
+}
+
+.editor-preview {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 12px;
+  overflow: auto;
+  white-space: pre-wrap;
+  /* preserve formatting and wrap */
+  color: #e0e0e0;
+  font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.filename-input {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #414345;
+  background: #232526;
+  color: #e0e0e0;
+  min-width: 220px;
+}
+
+.filename-input:focus {
+  outline: none;
+  border-color: #ffe066;
+  box-shadow: 0 0 0 2px rgba(254, 220, 42, 0.15);
+}
+
+.filename-hint {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: #cfd3d6;
+  opacity: 0.9;
+}

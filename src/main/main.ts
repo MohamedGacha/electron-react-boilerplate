@@ -8,10 +8,11 @@
  * When running `npm run build` or `npm run build:main`, this file is compiled to
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
-import path from 'path';
+import { app, BrowserWindow, ipcMain, shell } from 'electron';
+import { clipboard } from 'electron';
 import fs from 'fs';
 import os from 'os';
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import path from 'path';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
@@ -35,12 +36,8 @@ ipcMain.on('ipc-example', async (event, arg) => {
 
 ipcMain.handle('getSetupFiles', async () => {
   // Recursively find all .json files in the setups folder
-  interface JsonFileResult {
-    path: string;
-  }
-
-  function findJsonFiles(dir: string, accSetupsPath: string): JsonFileResult[] {
-    let results: JsonFileResult[] = [];
+  function findJsonFiles(dir: string, accSetupsPath: string): string[] {
+    let results: string[] = [];
     const list: string[] = fs.readdirSync(dir);
     list.forEach((file: string) => {
       const filePath: string = path.join(dir, file);
@@ -48,19 +45,32 @@ ipcMain.handle('getSetupFiles', async () => {
       if (stat && stat.isDirectory()) {
         results = results.concat(findJsonFiles(filePath, accSetupsPath));
       } else if (file.toLowerCase().endsWith('.json')) {
-        results.push({ path: path.relative(accSetupsPath, filePath) });
+        results.push(path.relative(accSetupsPath, filePath));
       }
     });
     return results;
   }
 
   try {
-    const documentsPath = path.join(os.homedir(), 'Documents');
-    const accSetupsPath = path.join(
-      documentsPath,
+    // Prefer OneDrive\Documents if present, otherwise fallback to Documents
+    const accSetupsPathOneDrive = path.join(
+      os.homedir(),
+      'OneDrive',
+      'Documents',
       'Assetto Corsa Competizione',
       'Setups',
     );
+    const accSetupsPathDocuments = path.join(
+      os.homedir(),
+      'Documents',
+      'Assetto Corsa Competizione',
+      'Setups',
+    );
+
+    const accSetupsPath = fs.existsSync(accSetupsPathOneDrive)
+      ? accSetupsPathOneDrive
+      : accSetupsPathDocuments;
+
     if (!fs.existsSync(accSetupsPath)) return [];
     return findJsonFiles(accSetupsPath, accSetupsPath);
   } catch {
@@ -113,6 +123,140 @@ ipcMain.on(
     });
   },
 );
+
+// Helper to resolve ACC Setups root (OneDrive first, then Documents)
+function getAccSetupsRoot(): string | null {
+  const oneDrive = path.join(
+    os.homedir(),
+    'OneDrive',
+    'Documents',
+    'Assetto Corsa Competizione',
+    'Setups',
+  );
+  const docs = path.join(
+    os.homedir(),
+    'Documents',
+    'Assetto Corsa Competizione',
+    'Setups',
+  );
+  if (fs.existsSync(oneDrive)) return oneDrive;
+  if (fs.existsSync(docs)) return docs;
+  return null;
+}
+
+function safeResolveInRoot(root: string, relativePath: string): string | null {
+  const abs = path.resolve(root, relativePath);
+  const normRoot = path.resolve(root) + path.sep;
+  if (!abs.startsWith(normRoot)) return null; // prevent path traversal
+  return abs;
+}
+
+// Copy setup file content to clipboard
+ipcMain.handle('copy-setup-file', async (_event, relativePath: string) => {
+  try {
+    const root = getAccSetupsRoot();
+    if (!root) throw new Error('ACC setups folder not found');
+    const abs = safeResolveInRoot(root, relativePath);
+    if (!abs) throw new Error('Invalid path');
+    const content = fs.readFileSync(abs, 'utf-8');
+    clipboard.writeText(content);
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+});
+
+// Delete setup file (with safety)
+ipcMain.handle('delete-setup-file', async (_event, relativePath: string) => {
+  try {
+    const root = getAccSetupsRoot();
+    if (!root) throw new Error('ACC setups folder not found');
+    const abs = safeResolveInRoot(root, relativePath);
+    if (!abs) throw new Error('Invalid path');
+    if (!fs.existsSync(abs)) throw new Error('File not found');
+    fs.unlinkSync(abs);
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+});
+
+// Read setup file content
+ipcMain.handle('read-setup-file', async (_event, relativePath: string) => {
+  try {
+    const root = getAccSetupsRoot();
+    if (!root) throw new Error('ACC setups folder not found');
+    const abs = safeResolveInRoot(root, relativePath);
+    if (!abs) throw new Error('Invalid path');
+    const content = fs.readFileSync(abs, 'utf-8');
+    return { ok: true, content };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+});
+
+// Update setup file content (overwrite)
+ipcMain.handle(
+  'update-setup-file',
+  async (_event, relativePath: string, newContent: string) => {
+    try {
+      const root = getAccSetupsRoot();
+      if (!root) throw new Error('ACC setups folder not found');
+      const abs = safeResolveInRoot(root, relativePath);
+      if (!abs) throw new Error('Invalid path');
+      fs.writeFileSync(abs, newContent, 'utf-8');
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, error: (e as Error).message };
+    }
+  },
+);
+
+// Create setup file (new file; keep old one)
+ipcMain.handle(
+  'create-setup-file',
+  async (_event, relativePath: string, content: string) => {
+    try {
+      const root = getAccSetupsRoot();
+      if (!root) throw new Error('ACC setups folder not found');
+      const abs = safeResolveInRoot(root, relativePath);
+      if (!abs) throw new Error('Invalid path');
+
+      const dir = path.dirname(abs);
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+
+      fs.writeFileSync(abs, content, 'utf-8');
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, error: (e as Error).message };
+    }
+  },
+);
+
+// Reveal setup file in file explorer
+ipcMain.handle('reveal-setup-file', async (_e, relativePath: string) => {
+  try {
+    const root = getAccSetupsRoot();
+    if (!root) throw new Error('ACC setups folder not found');
+    const abs = safeResolveInRoot(root, relativePath);
+    if (!abs) throw new Error('Invalid path');
+
+    if (fs.existsSync(abs)) {
+      shell.showItemInFolder(abs);
+      return { ok: true };
+    }
+
+    const dir = path.dirname(abs);
+    if (fs.existsSync(dir)) {
+      await shell.openPath(dir);
+      return { ok: true };
+    }
+
+    throw new Error('File not found');
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+});
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');

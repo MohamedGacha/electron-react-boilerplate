@@ -231,6 +231,13 @@ li {
   overflow: hidden;
 }
 
+.side-nav-link svg {
+  width: 28px;
+  /* was 22px */
+  height: 28px;
+  /* was 22px */
+}
+
 .side-nav-link::before {
   content: '';
   position: absolute;
@@ -263,5 +270,11 @@ li {
     width: 40px;
     height: 40px;
     font-size: 1.3rem;
+  }
+
+  /* Bigger icons on mobile too */
+  .side-nav-link svg {
+    width: 24px;
+    height: 24px;
   }
 }

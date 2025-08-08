@@ -1,10 +1,8 @@
 // Disable no-unused-vars, broken for spread args
 /* eslint no-unused-vars: off */
-import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
+import { contextBridge, ipcRenderer } from 'electron';
 
-export type Channels = 'ipc-example';
-
-const electronHandler = {
+contextBridge.exposeInMainWorld('electron', {
   ipcRenderer: {
     sendMessage(channel: Channels, ...args: unknown[]) {
       ipcRenderer.send(channel, ...args);
@@ -21,9 +19,20 @@ const electronHandler = {
     once(channel: Channels, func: (...args: unknown[]) => void) {
       ipcRenderer.once(channel, (_event, ...args) => func(...args));
     },
+    getSetupFiles: (): Promise<string[]> => ipcRenderer.invoke('getSetupFiles'),
+    copySetupFile: (relativePath: string) =>
+      ipcRenderer.invoke('copy-setup-file', relativePath),
+    deleteSetupFile: (relativePath: string) =>
+      ipcRenderer.invoke('delete-setup-file', relativePath),
+    readSetupFile: (relativePath: string) =>
+      ipcRenderer.invoke('read-setup-file', relativePath),
+    updateSetupFile: (relativePath: string, newContent: string) =>
+      ipcRenderer.invoke('update-setup-file', relativePath, newContent),
+    createSetupFile: (relativePath: string, content: string) =>
+      ipcRenderer.invoke('create-setup-file', relativePath, content),
+    revealSetupFile: (relativePath: string) =>
+      ipcRenderer.invoke('reveal-setup-file', relativePath),
   },
-};
-
-contextBridge.exposeInMainWorld('electron', electronHandler);
+});
 
 export type ElectronHandler = typeof electronHandler;
